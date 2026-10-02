@@ -1,0 +1,99 @@
+/* index.css — global reset and base styles for Safe-Drop */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100%;
+  font-family: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overscroll-behavior: none;
+}
+
+#root {
+  /* Let the SPA fill the full viewport — no fixed width constraint */
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Utility styles used by Home and Wait (Tailwind can't cover custom classes) */
+.digit-input {
+  width: 3rem;
+  height: 3.5rem;
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 700;
+  border-radius: 0.75rem;
+  border: 1.5px solid #bdc9c6;
+  background: #F2F4F9;
+  color: #141722;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  outline: none;
+}
+
+.digit-input:focus {
+  border-color: #141722;
+  box-shadow: 0 0 0 3px rgba(20, 23, 34, 0.12);
+}
+
+.btn-primary {
+  min-height: 48px;
+  background: #141722;
+  color: #fff;
+  border-radius: 9999px;
+  font-weight: 600;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+  width: 100%;
+  border: none;
+}
+
+.btn-primary:hover { opacity: 0.92; }
+.btn-primary:active { transform: scale(0.99); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.error-msg {
+  color: #ba1a1a;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  min-height: 1.25rem;
+}
+
+.toast {
+  position: fixed;
+  bottom: 5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #141722;
+  color: #fff;
+  padding: 0.6rem 1.2rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  z-index: 100;
+  animation: toast-in 0.2s ease;
+  pointer-events: none;
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(8px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* Safe-area insets for mobile notches */
+.pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
+.pt-safe  { padding-top: env(safe-area-inset-top, 0px); }
+
+/* Hide scrollbars (aesthetic, not functional) */
+::-webkit-scrollbar { display: none; }

@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.wrangler/
+*.log
+.env
+.env.*
+!.env.example
+screens/
+output/
+fetch_screens.py
+extract.py

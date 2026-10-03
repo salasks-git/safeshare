@@ -102,13 +102,20 @@ export default function Room() {
   // Countdown timer driven by expiresAt
   useEffect(() => {
     if (!expiresAt) return;
-    const tick = setInterval(() => {
+    
+    const updateTimer = () => {
       const left = Math.max(0, expiresAt - Date.now());
       const m = Math.floor(left / 60000).toString().padStart(2, '0');
       const s = Math.floor((left % 60000) / 1000).toString().padStart(2, '0');
       setTimeLeft(`${m}:${s}`);
-      if (left === 0) clearInterval(tick);
+      return left;
+    };
+
+    updateTimer(); // Initial call to avoid 1-second delay
+    const tick = setInterval(() => {
+      if (updateTimer() === 0) clearInterval(tick);
     }, 1000);
+    
     return () => clearInterval(tick);
   }, [expiresAt]);
 

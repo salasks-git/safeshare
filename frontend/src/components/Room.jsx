@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { getState, uploadFile, deleteFile, fileViewUrl, endSession } from '../js/api.js';
+import { getState, uploadFile, deleteFile, fileViewUrl, endSession, sendText } from '../js/api.js';
 import { createWsManager } from '../js/ws.js';
 import { compressImageFile } from '../js/compress.js';
 import { t } from '../js/i18n.js';
@@ -15,6 +15,8 @@ export default function Room() {
     return (codeParam && /^\d{6}$/.test(codeParam)) ? codeParam : '';
   });
   const [files, setFiles] = useState([]);
+  const [texts, setTexts] = useState([]);
+  const [textInput, setTextInput] = useState('');
   const [expiresAt, setExpiresAt] = useState(null);
   const [timeLeft, setTimeLeft] = useState('--:--');
   const [isEnded, setIsEnded] = useState(false);
@@ -52,6 +54,7 @@ export default function Room() {
       }
       if (data.expiresAt) setExpiresAt(data.expiresAt);
       if (data.files) setFiles(data.files);
+      if (data.texts) setTexts(data.texts);
     }).catch(() => {
       // If we can't load state on mount, show as ended to avoid a broken room
       setIsEnded(true);
@@ -68,6 +71,12 @@ export default function Room() {
           setFiles((prev) => {
             if (prev.find(f => f.id === msg.file.id)) return prev;
             return [...prev, msg.file];
+          });
+        }
+        if (msg.type === 'text_added') {
+          setTexts((prev) => {
+            if (prev.find(t => t.id === msg.text.id)) return prev;
+            return [...prev, msg.text];
           });
         }
         if (msg.type === 'file_removed') {
@@ -159,6 +168,28 @@ export default function Room() {
     }));
   };
 
+  const handleSendText = async (e) => {
+    e.preventDefault();
+    if (!textInput.trim()) return;
+    const content = textInput.trim();
+    setTextInput('');
+    const myRole = sessionStorage.getItem('sd_role') || 'host';
+    const res = await sendText(code, content).catch(() => ({ ok: false }));
+    if (!res.ok) {
+      showToast('Failed to send text.');
+    } else if (res.data?.id) {
+      const newText = {
+        ...res.data,
+        senderRole: myRole,
+        createdAt: Date.now(),
+      };
+      setTexts(prev => {
+        if (prev.find(t => t.id === newText.id)) return prev;
+        return [...prev, newText];
+      });
+    }
+  };
+
   const handleDeleteFile = async (fileId) => {
     if (!window.confirm('Remove this file from the room?')) return;
     await deleteFile(code, fileId).catch(() => {});
@@ -204,7 +235,10 @@ export default function Room() {
   }
 
   const myRole = sessionStorage.getItem('sd_role') || 'host';
-  const allFiles = [...files].sort((a, b) => a.createdAt - b.createdAt);
+  const allItems = [
+    ...files.map(f => ({...f, _type: 'file'})),
+    ...texts.map(t => ({...t, _type: 'text'}))
+  ].sort((a, b) => a.createdAt - b.createdAt);
 
   // ── Room CSS (scoped inline to avoid conflicts with global styles) ───────────
 
@@ -251,11 +285,16 @@ export default function Room() {
     .view-btn { height: 40px; padding: 0 1.25rem; background: var(--btn-gray); color: var(--navy); font-weight: 800; font-size: 12px; border-radius: 9999px; display: flex; align-items: center; gap: 0.375rem; cursor: pointer; border: none; flex-shrink: 0; }
     .view-btn:hover { background: var(--btn-gray-hover); }
     .empty-state { text-align: center; padding: 3rem 1rem; color: var(--muted); }
-    .dock-wrap { position: fixed; bottom: 2rem; left: 0; right: 0; z-index: 40; padding: 0 1rem; pointer-events: none; }
-    .dock { max-width: 36rem; margin: 0 auto; background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); border: 1px solid var(--border); border-radius: 9999px; padding: 0.5rem; box-shadow: 0 12px 36px -4px rgba(20,23,34,0.12); display: flex; align-items: center; gap: 0.625rem; pointer-events: auto; }
-    .send-btn { flex: 1; height: 48px; background: var(--navy); color: #fff; font-weight: 800; font-size: 14px; border-radius: 9999px; display: flex; align-items: center; justify-content: center; gap: 0.5rem; cursor: pointer; border: none; }
+    .dock-wrap { position: fixed; bottom: 1.5rem; left: 0; right: 0; z-index: 40; padding: 0 1rem; pointer-events: none; }
+    .dock { max-width: 48rem; margin: 0 auto; background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); border: 1px solid var(--border); border-radius: 28px; padding: 0.5rem; box-shadow: 0 12px 36px -4px rgba(20,23,34,0.12); display: flex; align-items: center; gap: 0.5rem; pointer-events: auto; }
+    .text-input-form { display: flex; flex: 2; align-items: center; gap: 0.5rem; background: #F1F3F9; border-radius: 9999px; padding: 0.25rem 0.25rem 0.25rem 1rem; border: 1px solid transparent; min-width: 120px; transition: background 0.15s, border-color 0.15s; }
+    .text-input-form:focus-within { background: #fff; border-color: var(--navy); }
+    .text-input { flex: 1; border: none; background: transparent; font-family: inherit; font-size: 14px; outline: none; color: var(--navy); padding: 0; min-width: 50px; }
+    .send-text-btn { height: 36px; width: 36px; border-radius: 50%; background: var(--navy); color: #fff; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; flex-shrink: 0; opacity: 1; transition: opacity 0.15s; }
+    .send-text-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .send-btn { flex: 1; height: 44px; padding: 0 1rem; background: var(--navy); color: #fff; font-weight: 800; font-size: 14px; border-radius: 9999px; display: flex; align-items: center; justify-content: center; gap: 0.375rem; cursor: pointer; border: none; white-space: nowrap; }
     .send-btn:hover { background: var(--navy-hover); }
-    .photo-btn { height: 48px; padding: 0 1.5rem; background: #EDF0F7; color: var(--navy); font-weight: 800; font-size: 14px; border-radius: 9999px; display: flex; align-items: center; gap: 0.5rem; cursor: pointer; border: none; }
+    .photo-btn { height: 44px; padding: 0 1.25rem; background: #EDF0F7; color: var(--navy); font-weight: 800; font-size: 14px; border-radius: 9999px; display: flex; align-items: center; justify-content: center; gap: 0.375rem; cursor: pointer; border: none; flex-shrink: 0; }
     .photo-btn:hover { background: #dde2ef; }
     .room-toast { position: fixed; bottom: 6rem; left: 50%; transform: translateX(-50%); background: var(--navy); color: #fff; padding: 0.5rem 1.25rem; border-radius: 9999px; font-size: 13px; font-weight: 700; z-index: 200; pointer-events: none; }
     /* Modal */
@@ -266,6 +305,8 @@ export default function Room() {
     .modal-footer { padding: 0.75rem 1.25rem; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; }
     .close-btn { width: 36px; height: 36px; border-radius: 50%; background: var(--gray-bg); border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--navy); }
     .close-btn:hover { background: #dde2ef; }
+    .hide-on-mobile { display: none; }
+    @media (min-width: 600px) { .hide-on-mobile { display: inline; } }
     @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
     @keyframes slide { 0% { transform: translateX(-100%); } 100% { transform: translateX(200%); } }
   `;
@@ -324,23 +365,46 @@ export default function Room() {
 
             <div className="feed-header">
               <div style={{display: 'flex', alignItems: 'center'}}>
-                <span className="feed-title">{t('shared_files')}</span>
-                <span className="feed-count">{allFiles.length} items</span>
+                <span className="feed-title">{t('shared_files') || 'Shared items'}</span>
+                <span className="feed-count">{allItems.length} items</span>
               </div>
               <span className="live-label"><span className="connected-dot" style={{width: '8px', height: '8px', flexShrink: 0}}></span>{t('live_syncing')}</span>
             </div>
 
             <div style={{display: 'flex', flexDirection: 'column', gap: '1.25rem'}}>
-              {allFiles.length === 0 && uploadingFiles.length === 0 && (
+              {allItems.length === 0 && uploadingFiles.length === 0 && (
                 <div className="empty-state">
                   <div><span className="material-symbols-outlined" style={{fontSize: '48px'}}>upload_file</span></div>
-                  <div style={{fontSize: '15px', fontWeight: 700, marginTop: '0.5rem'}}>No files yet</div>
-                  <div style={{fontSize: '13px', marginTop: '0.25rem'}}>Send a file to get started.</div>
+                  <div style={{fontSize: '15px', fontWeight: 700, marginTop: '0.5rem'}}>No items yet</div>
+                  <div style={{fontSize: '13px', marginTop: '0.25rem'}}>Send a file or text to get started.</div>
                 </div>
               )}
 
-              {allFiles.map(file => {
-                const isMe = file.senderRole === myRole;
+              {allItems.map(item => {
+                const isMe = item.senderRole === myRole;
+                if (item._type === 'text') {
+                  return (
+                    <div key={item.id} className="card">
+                      <div className="file-row">
+                        <div className="file-icon-wrap" style={{background: 'var(--green-bg)', color: 'var(--green)'}}><span className="material-symbols-outlined" style={{fontSize: '26px'}}>notes</span></div>
+                        <div className="file-meta">
+                          <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap'}}>
+                            <span className={`file-who${isMe ? ' me' : ''}`}>{isMe ? t('sent_by_you') : t('sent_by_other')}</span>
+                            <span style={{color: 'var(--muted)', fontSize: '12px'}}>•</span>
+                            <span style={{color: 'var(--muted)', fontSize: '12px'}}>{formatTime(item.createdAt)}</span>
+                          </div>
+                          <div className="file-name" style={{whiteSpace: 'pre-wrap', maxHeight: 'none', lineHeight: '1.4', marginTop: '4px', maxWidth: 'none', wordBreak: 'break-word'}}>{item.content}</div>
+                        </div>
+                        <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0}}>
+                          <button className="view-btn" onClick={() => navigator.clipboard.writeText(item.content).then(() => showToast('Copied!'))} type="button" style={{padding: '0 0.75rem'}} title="Copy text">
+                            <span className="material-symbols-outlined" style={{fontSize: '17px'}}>content_copy</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+                const file = item;
                 return (
                   <div key={file.id} className="card">
                     <div className="file-row">
@@ -399,6 +463,13 @@ export default function Room() {
         {/* Floating dock */}
         <aside className="dock-wrap">
           <div className="dock">
+            <form className="text-input-form" onSubmit={handleSendText}>
+              <input type="text" className="text-input" placeholder="Type a message..." value={textInput} onChange={e => setTextInput(e.target.value)} maxLength={5000} />
+              <button type="submit" className="send-text-btn" disabled={!textInput.trim()}>
+                <span className="material-symbols-outlined" style={{fontSize: '18px', marginLeft: '2px'}}>send</span>
+              </button>
+            </form>
+
             <input
               type="file"
               ref={fileInputRef}
@@ -408,8 +479,8 @@ export default function Room() {
               multiple
             />
             <button className="send-btn" onClick={() => fileInputRef.current?.click()} type="button">
-              <span className="material-symbols-outlined" style={{fontSize: '20px'}}>upload_file</span>
-              <span>{t('send_a_file')}</span>
+              <span className="material-symbols-outlined" style={{fontSize: '18px'}}>upload_file</span>
+              <span className="hide-on-mobile">File</span>
             </button>
 
             <input

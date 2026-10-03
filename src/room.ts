@@ -98,6 +98,12 @@ export class RoomDO implements DurableObject {
         senderRole  TEXT NOT NULL,
         createdAt   INTEGER NOT NULL
       );
+      CREATE TABLE IF NOT EXISTS texts (
+        id          TEXT PRIMARY KEY,
+        content     TEXT NOT NULL,
+        senderRole  TEXT NOT NULL,
+        createdAt   INTEGER NOT NULL
+      );
     `);
   }
 
@@ -122,6 +128,7 @@ export class RoomDO implements DurableObject {
         case '/join':     return this.handleJoin(request);
         case '/state':    return this.handleState(request);
         case '/upload':   return this.handleUpload(request);
+        case '/text':     return this.handleText(request);
         case '/file':     return this.handleFileGet(request);
         case '/delete-file': return this.handleFileDelete(request);
         case '/end':      return this.handleEnd(request);
@@ -156,6 +163,7 @@ export class RoomDO implements DurableObject {
     // Clear any old state
     this.sql.exec('DELETE FROM room');
     this.sql.exec('DELETE FROM files');
+    this.sql.exec('DELETE FROM texts');
 
     this.sql.exec(
       'INSERT INTO room (status, roomId, hostHash, createdAt, expiresAt, lastActivity) VALUES (?, ?, ?, ?, ?, ?)',
@@ -214,10 +222,15 @@ export class RoomDO implements DurableObject {
       'SELECT id, name, size, mime, senderRole, createdAt FROM files ORDER BY createdAt ASC'
     ).toArray() as unknown as FileRow[];
 
+    const texts = this.sql.exec(
+      'SELECT id, content, senderRole, createdAt FROM texts ORDER BY createdAt ASC'
+    ).toArray() as unknown as Array<{ id: string, content: string, senderRole: Role, createdAt: number }>;
+
     return Response.json({
       status: room.status,
       expiresAt: room.expiresAt,
       files,
+      texts,
     });
   }
 
@@ -335,6 +348,38 @@ export class RoomDO implements DurableObject {
     return Response.json({ id: fileId, name, size: totalRead, mime });
   }
 
+  // ─── Text Get ─────────────────────────────────────────────────────────────
+
+  private async handleText(req: Request): Promise<Response> {
+    if (req.method !== 'POST') return new Response('method_not_allowed', { status: 405 });
+
+    const role = req.headers.get('X-Role') as Role | null;
+    if (!role) return new Response('not_found', { status: 404 });
+
+    const body = await req.json().catch(() => null) as { content?: string } | null;
+    if (!body || typeof body.content !== 'string' || body.content.trim() === '') {
+      return new Response('bad_request', { status: 400 });
+    }
+
+    const content = body.content.substring(0, 5000); // Max 5000 chars
+
+    const textId = randomId();
+    const createdAt = Date.now();
+
+    this.sql.exec(
+      'INSERT INTO texts (id, content, senderRole, createdAt) VALUES (?, ?, ?, ?)',
+      textId, content, role, createdAt
+    );
+
+    this._resetIdleAlarm();
+    this._broadcast({
+      type: 'text_added',
+      text: { id: textId, content, senderRole: role, createdAt },
+    });
+
+    return Response.json({ id: textId, content, senderRole: role, createdAt });
+  }
+
   // ─── File Get (stream from R2) ────────────────────────────────────────────
 
   private async handleFileGet(req: Request): Promise<Response> {
@@ -433,6 +478,7 @@ export class RoomDO implements DurableObject {
 
     this.sql.exec('UPDATE room SET status=? WHERE 1=1', 'ended');
     this.sql.exec('DELETE FROM files');
+    this.sql.exec('DELETE FROM texts');
 
     this._broadcast({ type: 'ended', reason });
 

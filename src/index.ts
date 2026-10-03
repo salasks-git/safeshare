@@ -346,6 +346,20 @@ async function handleRoomAction(
     return res;
   }
 
+  // POST /api/rooms/:code/texts — send text
+  if (sub === '/texts' && method === 'POST') {
+    const res = await do_.fetch(new Request('http://do/text', {
+      method: 'POST',
+      headers: {
+        'X-Role': role,
+        'X-Token': cookie.token,
+        'Content-Type': request.headers.get('Content-Type') || 'application/json',
+      },
+      body: request.body,
+    }));
+    return res;
+  }
+
   // GET /api/rooms/:code/files/:fileId — view
   const fileMatch = sub.match(/^\/files\/([a-f0-9-]{36})$/);
   if (fileMatch && method === 'GET') {

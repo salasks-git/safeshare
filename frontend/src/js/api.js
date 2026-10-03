@@ -51,6 +51,17 @@ export async function uploadFile(code, file) {
   return { ok: res.ok, status: res.status, data: await _json(res) };
 }
 
+/** POST /api/rooms/:code/texts — send text. Returns { id, content }. */
+export async function sendText(code, content) {
+  const res = await fetch(`${base}/api/rooms/${code}/texts`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ content }),
+    credentials: 'same-origin',
+  });
+  return { ok: res.ok, status: res.status, data: await _json(res) };
+}
+
 /** Returns the URL to view a file (used in <img src> or pdf.js). */
 export function fileViewUrl(code, fileId) {
   return `${base}/api/rooms/${code}/files/${fileId}`;

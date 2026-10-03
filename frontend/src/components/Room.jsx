@@ -483,17 +483,6 @@ export default function Room() {
               <span className="hide-on-mobile">File</span>
             </button>
 
-            <input
-              type="file"
-              ref={photoInputRef}
-              onChange={(e) => { if (e.target.files) handleFiles(e.target.files); e.target.value = ''; }}
-              accept="image/*"
-              capture="environment"
-              style={{display: 'none'}}
-            />
-            <button className="photo-btn" onClick={() => photoInputRef.current?.click()} type="button">
-              <span className="material-symbols-outlined" style={{fontSize: '20px'}}>photo_camera</span>
-            </button>
           </div>
         </aside>
 

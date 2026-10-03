@@ -181,7 +181,13 @@ export class RoomDO implements DurableObject {
     if (rows.length === 0) return new Response('not_found', { status: 404 });
 
     const { status } = rows[0] as { status: RoomStatus };
-    if (status !== 'waiting') return new Response('not_found', { status: 404 });
+    if (status === 'ended') return new Response('not_found', { status: 404 });
+
+    // Allow guest to re-join/take over if the room is active but the previous guest disconnected
+    if (status === 'active') {
+      const activeGuests = this.state.getWebSockets(WS_TAG_GUEST).length;
+      if (activeGuests > 0) return new Response('not_found', { status: 404 });
+    }
 
     const token = randomToken();
     const hash = await sha256hex(token);
@@ -278,7 +284,7 @@ export class RoomDO implements DurableObject {
     // Give a 3-second grace period for navigation (e.g. from Wait.jsx to Room.jsx)
     // before destroying the room, as React Router unmounts the old WS before mounting the new one.
     this.state.waitUntil(
-      new Promise(resolve => setTimeout(resolve, 3000)).then(() => {
+      new Promise(resolve => setTimeout(resolve, 20000)).then(() => {
         if (this.state.getWebSockets(roleTag).length === 0) {
           // No active socket for this role after 3 seconds; truly disconnected
           void this._endRoom(`peer_disconnected_${role}`);

@@ -1,4 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
+import re
+
+home_jsx = """import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { createRoom, joinRoom } from '../js/api.js';
 import { t, getLang, setLang } from '../js/i18n.js';
@@ -234,3 +236,8 @@ export default function Home() {
     </div>
   );
 }
+"""
+
+with open('frontend/src/components/Home.jsx', 'w') as f:
+    f.write(home_jsx)
+

@@ -1,0 +1,217 @@
+<!DOCTYPE html><html lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Safe-Drop — Direct P2P Transfer</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS v3 -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              lime: '#B9FF66',
+              limeHover: '#a3f04b',
+              dark: '#191A23',
+              darker: '#0F1015',
+              gray: '#F3F3F3',
+              cardBg: '#FFFFFF',
+              muted: '#71717A',
+              border: '#191A23'
+            }
+          },
+          fontFamily: {
+            sans: ['"Space Grotesk"', 'sans-serif'],
+          },
+          boxShadow: {
+            'brutal': '0px 5px 0px 0px #191A23',
+            'brutal-sm': '0px 3px 0px 0px #191A23',
+            'brutal-active': '0px 1px 0px 0px #191A23',
+          }
+        }
+      }
+    }
+  </script>
+<!-- BEGIN: Custom Styles -->
+<style data-purpose="typography">
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+  </style>
+<style data-purpose="interactive-states">
+    .otp-input:focus {
+      outline: none;
+      border-color: #191A23;
+      box-shadow: 0 0 0 3px #B9FF66;
+    }
+    .action-btn {
+      transition: all 0.15s ease-in-out;
+    }
+    .action-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0px 6px 0px 0px #191A23;
+    }
+    .action-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0px 1px 0px 0px #191A23;
+    }
+  </style>
+<!-- END: Custom Styles -->
+</head>
+<body class="bg-[#F3F3F3] text-brand-dark min-h-screen flex flex-col justify-between selection:bg-brand-lime selection:text-brand-dark">
+<!-- BEGIN: MainHeader -->
+<header class="w-full max-w-5xl mx-auto px-6 pt-8 pb-4 flex items-center justify-between" data-purpose="site-header">
+<!-- Brand Logo and Subtitle -->
+<div class="flex items-center gap-3.5">
+<div class="w-12 h-12 rounded-xl bg-brand-dark flex items-center justify-center text-white shadow-brutal-sm border border-brand-dark">
+<svg class="w-6 h-6 text-brand-lime" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<rect height="11" rx="2" ry="2" width="18" x="3" y="11"></rect>
+<path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+</svg>
+</div>
+<div>
+<h1 class="text-2xl font-bold tracking-tight leading-none text-brand-dark">Safe-Drop</h1>
+<p class="text-xs font-medium text-brand-muted tracking-wide mt-1">Direct P2P Transfer</p>
+</div>
+</div>
+<!-- Language Selector Pill -->
+<div class="flex items-center">
+<button class="flex items-center gap-2.5 bg-white border-[1.5px] border-brand-dark py-2 px-4 rounded-xl shadow-brutal-sm hover:bg-brand-lime/20 transition-colors" type="button">
+<!-- Globe Icon -->
+<svg class="w-4 h-4 text-brand-dark" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<circle cx="12" cy="12" r="10"></circle>
+<line x1="2" x2="22" y1="12" y2="12"></line>
+<path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+</svg>
+<span class="text-sm font-semibold">English</span>
+<!-- Dropdown Arrow -->
+<svg class="w-3.5 h-3.5 text-brand-dark ml-0.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<polyline points="6 9 12 15 18 9"></polyline>
+</svg>
+</button>
+</div>
+</header>
+<!-- END: MainHeader -->
+<!-- BEGIN: MainContent -->
+<main class="flex-grow flex items-center justify-center py-6 px-4">
+<div class="w-full max-w-2xl mx-auto space-y-7">
+<!-- Hero Title & Tag Group -->
+<section class="text-left space-y-3" data-purpose="hero-intro">
+<!-- Highlighted Status Badge (Lime Pill) -->
+<div class="inline-flex items-center gap-2 bg-brand-lime text-brand-dark font-bold text-xs md:text-sm px-3.5 py-1 rounded-md border border-brand-dark tracking-wide">
+<span class="w-2 h-2 rounded-full bg-brand-dark animate-pulse"></span>
+          Instant Device Pairing
+        </div>
+<h2 class="text-3xl md:text-4xl lg:text-[40px] font-bold tracking-tight text-brand-dark leading-[1.15]">
+          Connect two devices.<br>Share files instantly.
+        </h2>
+<p class="text-brand-muted text-base md:text-lg font-normal">
+          No login. No install. Files vanish when you're done.
+        </p>
+</section>
+<!-- BEGIN: Card 1 - Create a Room -->
+<section class="bg-white rounded-3xl p-6 sm:p-8 border-[1.5px] border-brand-dark shadow-brutal transition-all" data-purpose="create-room-card">
+<div class="flex items-start gap-4 mb-6">
+<div class="w-12 h-12 rounded-2xl bg-brand-gray border border-brand-dark/20 flex items-center justify-center flex-shrink-0">
+<svg class="w-6 h-6 text-brand-dark" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<circle cx="12" cy="12" r="10"></circle>
+<line x1="12" x2="12" y1="8" y2="16"></line>
+<line x1="8" x2="16" y1="12" y2="12"></line>
+</svg>
+</div>
+<div>
+<h3 class="text-xl font-bold text-brand-dark tracking-tight">Create a room</h3>
+<p class="text-brand-muted text-sm mt-0.5">Get a 6-digit code to connect another phone or computer.</p>
+</div>
+</div>
+<button class="action-btn w-full py-4 px-6 rounded-2xl bg-brand-dark text-white font-semibold flex items-center justify-center gap-3 border-[1.5px] border-brand-dark shadow-brutal-sm hover:bg-black group" type="button">
+<!-- 123 Code Icon -->
+<span class="px-2 py-0.5 text-xs font-mono font-bold bg-brand-lime text-brand-dark rounded border border-brand-dark group-hover:scale-105 transition-transform">123</span>
+<span class="text-base tracking-wide">Get a code</span>
+</button>
+</section>
+<!-- END: Card 1 - Create a Room -->
+<!-- BEGIN: Card 2 - Join a Room -->
+<section class="bg-white rounded-3xl p-6 sm:p-8 border-[1.5px] border-brand-dark shadow-brutal transition-all" data-purpose="join-room-card">
+<div class="flex items-start gap-4 mb-6">
+<div class="w-12 h-12 rounded-2xl bg-brand-gray border border-brand-dark/20 flex items-center justify-center flex-shrink-0">
+<svg class="w-6 h-6 text-brand-dark" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+<polyline points="10 17 15 12 10 7"></polyline>
+<line x1="15" x2="3" y1="12" y2="12"></line>
+</svg>
+</div>
+<div>
+<h3 class="text-xl font-bold text-brand-dark tracking-tight">Join a room</h3>
+<p class="text-brand-muted text-sm mt-0.5">Enter the 6-digit code from the other device</p>
+</div>
+</div>
+<!-- 6-digit OTP Inputs -->
+<div class="grid grid-cols-6 gap-2.5 sm:gap-3.5 mb-6" data-purpose="otp-container">
+<input class="otp-input w-full aspect-[4/5] sm:h-16 text-center text-xl sm:text-2xl font-bold bg-white text-brand-dark border-2 border-brand-dark rounded-xl transition-all shadow-[2px_2px_0px_0px_#191A23]" inputmode="numeric" maxlength="1" placeholder="·" type="text">
+<input class="otp-input w-full aspect-[4/5] sm:h-16 text-center text-xl sm:text-2xl font-bold bg-white text-brand-dark border-2 border-brand-dark rounded-xl transition-all shadow-[2px_2px_0px_0px_#191A23]" inputmode="numeric" maxlength="1" placeholder="·" type="text">
+<input class="otp-input w-full aspect-[4/5] sm:h-16 text-center text-xl sm:text-2xl font-bold bg-white text-brand-dark border-2 border-brand-dark rounded-xl transition-all shadow-[2px_2px_0px_0px_#191A23]" inputmode="numeric" maxlength="1" placeholder="·" type="text">
+<input class="otp-input w-full aspect-[4/5] sm:h-16 text-center text-xl sm:text-2xl font-bold bg-white text-brand-dark border-2 border-brand-dark rounded-xl transition-all shadow-[2px_2px_0px_0px_#191A23]" inputmode="numeric" maxlength="1" placeholder="·" type="text">
+<input class="otp-input w-full aspect-[4/5] sm:h-16 text-center text-xl sm:text-2xl font-bold bg-white text-brand-dark border-2 border-brand-dark rounded-xl transition-all shadow-[2px_2px_0px_0px_#191A23]" inputmode="numeric" maxlength="1" placeholder="·" type="text">
+<input class="otp-input w-full aspect-[4/5] sm:h-16 text-center text-xl sm:text-2xl font-bold bg-white text-brand-dark border-2 border-brand-dark rounded-xl transition-all shadow-[2px_2px_0px_0px_#191A23]" inputmode="numeric" maxlength="1" placeholder="·" type="text">
+</div>
+<button class="action-btn w-full py-4 px-6 rounded-2xl bg-brand-dark text-white font-semibold flex items-center justify-center gap-3 border-[1.5px] border-brand-dark shadow-brutal-sm hover:bg-black group" type="button">
+<svg class="w-5 h-5 text-brand-lime transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<line x1="5" x2="19" y1="12" y2="12"></line>
+<polyline points="12 5 19 12 12 19"></polyline>
+</svg>
+<span class="text-base tracking-wide">Connect</span>
+</button>
+</section>
+<!-- END: Card 2 - Join a Room -->
+<!-- BEGIN: Feature Trio Badges -->
+
+<!-- END: Feature Trio Badges -->
+</div>
+</main>
+<!-- END: MainContent -->
+<!-- BEGIN: MainFooter -->
+<footer class="w-full max-w-5xl mx-auto px-6 py-8 border-t border-brand-dark/10 mt-8" data-purpose="site-footer">
+<div class="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm font-medium text-brand-muted">
+<!-- Security Status Left -->
+<div class="flex items-center gap-2 text-brand-dark">
+<svg class="w-5 h-5 text-brand-dark fill-brand-lime" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+</svg>
+<span class="font-semibold text-brand-dark">End-to-end encrypted</span>
+</div>
+<!-- Legal & Abuse Links Right -->
+<div class="flex items-center gap-6">
+<a class="hover:text-brand-dark transition-colors underline decoration-brand-dark/30 underline-offset-4" href="#">Privacy</a>
+<span class="w-1.5 h-1.5 rounded-full bg-brand-dark/30"></span>
+<a class="hover:text-brand-dark transition-colors underline decoration-brand-dark/30 underline-offset-4" href="#">Report abuse</a>
+</div>
+</div>
+</footer>
+<!-- END: MainFooter -->
+<!-- BEGIN: Interactive Scripts -->
+<script data-purpose="otp-autofocus">
+    // Auto-advance cursor to next input box for 6-digit OTP
+    const inputs = document.querySelectorAll('.otp-input');
+    inputs.forEach((input, index) => {
+      input.addEventListener('input', (e) => {
+        if (e.target.value.length === 1 && index < inputs.length - 1) {
+          inputs[index + 1].focus();
+        }
+      });
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && !e.target.value && index > 0) {
+          inputs[index - 1].focus();
+        }
+      });
+    });
+  </script>
+<!-- END: Interactive Scripts -->
+
+
+</body></html>

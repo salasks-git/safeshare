@@ -8,65 +8,73 @@
   <meta name="description" content="Connect two devices with a 6-digit code and share files instantly. No login, no install. Files vanish when you're done.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <script id="tailwind-config">
     tailwind.config = {
-      darkMode: "class",
       theme: {
         extend: {
           colors: {
-            "primary": "#005c55",
-            "primary-container": "#0f766e",
-            "on-surface": "#131b2e",
-            "on-surface-variant": "#3e4947",
-            "surface": "#faf8ff",
-            "surface-container": "#eaedff",
-            "surface-container-low": "#f2f3ff",
-            "surface-container-lowest": "#ffffff",
-            "outline-variant": "#bdc9c6",
-            "secondary-container": "#a8ece5",
-            "on-secondary-container": "#266d68",
-            "error": "#ba1a1a",
-            "error-container": "#ffdad6",
+            brand: {
+              lime: '#B9FF66',
+              limeHover: '#a3f04b',
+              dark: '#191A23',
+              darker: '#0F1015',
+              gray: '#F3F3F3',
+              cardBg: '#FFFFFF',
+              muted: '#71717A',
+              border: '#191A23'
+            }
           },
-          spacing: {
-            "margin": "2rem", "margin-mobile": "1rem",
-            "space-xs": "0.25rem", "space-sm": "0.5rem",
-            "space-md": "1rem", "space-lg": "1.5rem", "space-xl": "2.5rem",
+          fontFamily: {
+            display: ['"Space Grotesk"', 'sans-serif'],
+            sans: ['"Plus Jakarta Sans"', 'sans-serif']
           },
-        },
-      },
+          boxShadow: {
+            'brutal': '0px 5px 0px 0px #191A23',
+            'brutal-sm': '0px 3px 0px 0px #191A23',
+            'brutal-hover': '0px 2px 0px 0px #191A23',
+            'brutal-active': '0px 1px 0px 0px #191A23',
+            'dock': '0 20px 40px -15px rgba(25, 26, 35, 0.15)'
+          }
+        }
+      }
     };
   </script>
   <style>
     @layer base {
       html, body { width: 100vw; min-height: 100%; margin: 0; padding: 0; }
-      body { overscroll-behavior: none; font-family: 'Inter', sans-serif; }
+      body {
+        overscroll-behavior: none;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background-color: #F3F3F3;
+        color: #191A23;
+        -webkit-font-smoothing: antialiased;
+      }
+      .font-display { font-family: 'Space Grotesk', sans-serif; }
+      .bg-grid { background-image: radial-gradient(#191A23 0.75px, transparent 0.75px); background-size: 24px 24px; }
       .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
       .pt-safe { padding-top: env(safe-area-inset-top, 0px); }
     }
     ::-webkit-scrollbar { display: none; }
-    .digit-input { width: 3rem; height: 3.5rem; text-align: center; font-size: 1.25rem; font-weight: 700;
-      border-radius: 0.75rem; border: 1.5px solid #bdc9c6; background: #F2F4F9; color: #141722;
-      transition: border-color 0.15s, box-shadow 0.15s; outline: none; }
-    .digit-input:focus { border-color: #141722; box-shadow: 0 0 0 3px rgba(20,23,34,0.12); }
-    .btn-primary { min-height: 48px; background: #141722; color: #fff; border-radius: 9999px;
-      font-weight: 600; font-size: 1rem; display: flex; align-items: center; justify-content: center;
-      gap: 0.5rem; cursor: pointer; transition: opacity 0.15s, transform 0.1s; width: 100%; border: none; }
-    .btn-primary:hover { opacity: 0.92; }
-    .btn-primary:active { transform: scale(0.99); }
-    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-    .error-msg { color: #ba1a1a; font-size: 0.875rem; margin-top: 0.5rem; min-height: 1.25rem; }
-    .toast { position: fixed; bottom: 5rem; left: 50%; transform: translateX(-50%);
-      background: #141722; color: #fff; padding: 0.6rem 1.2rem; border-radius: 9999px;
-      font-size: 0.875rem; font-weight: 600; z-index: 100;
-      animation: toast-in 0.2s ease; pointer-events: none; }
-    @keyframes toast-in { from { opacity: 0; transform: translateX(-50%) translateY(8px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+    
+    .otp-input:focus {
+      outline: none;
+      border-color: #191A23;
+      box-shadow: 0 0 0 3px #B9FF66;
+    }
+    .action-btn { transition: all 0.15s ease-in-out; }
+    .action-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0px 6px 0px 0px #191A23; }
+    .action-btn:active:not(:disabled) { transform: translateY(2px); box-shadow: 0px 1px 0px 0px #191A23; }
+    .action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    
+    @keyframes pulse-dot { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.4); opacity: 0.75; } }
+    .status-pulse { animation: pulse-dot 2s infinite ease-in-out; }
+    @keyframes orbit-float { 0%, 100% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(-8px) rotate(1.5deg); } }
+    .floating-illustration { animation: orbit-float 4s ease-in-out infinite; }
   </style>
 </head>
-<body class="bg-surface text-on-surface antialiased flex flex-col min-h-screen selection:bg-secondary-container selection:text-on-secondary-container">
+<body class="antialiased selection:bg-brand-lime selection:text-brand-dark">
   <div id="root"></div>
   <script type="module" src="/src/main.jsx"></script>
 </body>

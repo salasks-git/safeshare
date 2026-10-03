@@ -278,19 +278,9 @@ export class RoomDO implements DurableObject {
 
   webSocketClose(ws: WebSocket): void {
     const tags = this.state.getTags(ws);
-    const roleTag = tags.includes(WS_TAG_HOST) ? WS_TAG_HOST : WS_TAG_GUEST;
-    const role = roleTag === WS_TAG_HOST ? 'host' : 'guest';
-    
-    // Give a 3-second grace period for navigation (e.g. from Wait.jsx to Room.jsx)
-    // before destroying the room, as React Router unmounts the old WS before mounting the new one.
-    this.state.waitUntil(
-      new Promise(resolve => setTimeout(resolve, 20000)).then(() => {
-        if (this.state.getWebSockets(roleTag).length === 0) {
-          // No active socket for this role after 3 seconds; truly disconnected
-          void this._endRoom(`peer_disconnected_${role}`);
-        }
-      })
-    );
+    const role = tags.includes(WS_TAG_HOST) ? 'host' : 'guest';
+    // Notify the peer
+    this._broadcast({ type: 'peer_left', role }, role);
   }
 
   webSocketError(ws: WebSocket): void {

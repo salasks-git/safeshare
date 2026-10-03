@@ -155,10 +155,8 @@ export class RoomDO implements DurableObject {
     const token = randomToken();
     const hash = await sha256hex(token);
     const now = Date.now();
-    const idleMs = Number(this.env.ROOM_IDLE_TIMEOUT_MS);
     const maxMs = Number(this.env.ROOM_MAX_LIFETIME_MS);
-    const waitMs = 300_000; // 5 min wait for guest to join
-    const expiresAt = now + Math.min(waitMs, idleMs);
+    const expiresAt = now + maxMs;
 
     // Clear any old state
     this.sql.exec('DELETE FROM room');
@@ -188,14 +186,11 @@ export class RoomDO implements DurableObject {
     const token = randomToken();
     const hash = await sha256hex(token);
     const now = Date.now();
-    const idleMs = Number(this.env.ROOM_IDLE_TIMEOUT_MS);
     const maxMs = Number(this.env.ROOM_MAX_LIFETIME_MS);
 
-    // Set active with idle alarm
+    // Set active with absolute alarm
     const roomRow = this.sql.exec('SELECT createdAt FROM room LIMIT 1').toArray()[0] as { createdAt: number };
-    const absoluteExpiry = roomRow.createdAt + maxMs;
-    const idleExpiry = now + idleMs;
-    const expiresAt = Math.min(absoluteExpiry, idleExpiry);
+    const expiresAt = roomRow.createdAt + maxMs;
 
     this.sql.exec(
       'UPDATE room SET status=?, guestHash=?, expiresAt=?, lastActivity=? WHERE 1=1',
@@ -460,13 +455,11 @@ export class RoomDO implements DurableObject {
     if (!rows) return;
 
     const now = Date.now();
-    const idleMs = Number(this.env.ROOM_IDLE_TIMEOUT_MS);
     const maxMs = Number(this.env.ROOM_MAX_LIFETIME_MS);
     const absoluteExpiry = rows.createdAt + maxMs;
-    const newExpiry = Math.min(now + idleMs, absoluteExpiry);
 
-    this.sql.exec('UPDATE room SET lastActivity=?, expiresAt=? WHERE 1=1', now, newExpiry);
-    await this.state.storage.setAlarm(newExpiry);
+    this.sql.exec('UPDATE room SET lastActivity=? WHERE 1=1', now);
+    await this.state.storage.setAlarm(absoluteExpiry);
   }
 
   /** Delete all R2 objects, wipe SQLite, broadcast ended, close sockets. */

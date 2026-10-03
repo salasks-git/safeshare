@@ -242,11 +242,13 @@ export class RoomDO implements DurableObject {
       const [code, cRole, cToken] = match[1].split('.');
       const tokenHash = await sha256hex(cToken);
       
-      const rows = this.sql.exec('SELECT hostHash, guestHash FROM room LIMIT 1').toArray();
+      const rows = this.sql.exec('SELECT status, hostHash, guestHash FROM room LIMIT 1').toArray();
       if (rows.length > 0) {
-        const r = rows[0] as { hostHash: string, guestHash: string | null };
-        if (cRole === 'host' && safeEqual(tokenHash, r.hostHash)) role = 'host';
-        if (cRole === 'guest' && r.guestHash && safeEqual(tokenHash, r.guestHash)) role = 'guest';
+        const r = rows[0] as { status: string, hostHash: string, guestHash: string | null };
+        if (r.status !== 'ended') {
+          if (cRole === 'host' && safeEqual(tokenHash, r.hostHash)) role = 'host';
+          if (cRole === 'guest' && r.guestHash && safeEqual(tokenHash, r.guestHash)) role = 'guest';
+        }
       }
     }
 
@@ -271,8 +273,8 @@ export class RoomDO implements DurableObject {
   webSocketClose(ws: WebSocket): void {
     const tags = this.state.getTags(ws);
     const role = tags.includes(WS_TAG_HOST) ? 'host' : 'guest';
-    // Notify the peer
-    this._broadcast({ type: 'peer_left', role }, role);
+    // End the room completely when any peer disconnects, as requested
+    void this._endRoom(`peer_disconnected_${role}`);
   }
 
   webSocketError(ws: WebSocket): void {

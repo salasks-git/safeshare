@@ -287,9 +287,9 @@ export default function Room() {
     .empty-state { text-align: center; padding: 3rem 1rem; color: var(--muted); }
     .dock-wrap { position: fixed; bottom: 1.5rem; left: 0; right: 0; z-index: 40; padding: 0 1rem; pointer-events: none; }
     .dock { max-width: 48rem; margin: 0 auto; background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); border: 1px solid var(--border); border-radius: 28px; padding: 0.5rem; box-shadow: 0 12px 36px -4px rgba(20,23,34,0.12); display: flex; align-items: center; gap: 0.5rem; pointer-events: auto; }
-    .text-input-form { display: flex; flex: 2; align-items: center; gap: 0.5rem; background: #F1F3F9; border-radius: 9999px; padding: 0.25rem 0.25rem 0.25rem 1rem; border: 1px solid transparent; min-width: 120px; transition: background 0.15s, border-color 0.15s; }
+    .text-input-form { display: flex; flex: 2; align-items: flex-end; gap: 0.5rem; background: #F1F3F9; border-radius: 20px; padding: 0.25rem 0.25rem 0.25rem 1rem; border: 1px solid transparent; min-width: 120px; transition: background 0.15s, border-color 0.15s; }
     .text-input-form:focus-within { background: #fff; border-color: var(--navy); }
-    .text-input { flex: 1; border: none; background: transparent; font-family: inherit; font-size: 14px; outline: none; color: var(--navy); padding: 0; min-width: 50px; }
+    .text-input { flex: 1; border: none; background: transparent; font-family: monospace; font-size: 13px; outline: none; color: var(--navy); padding: 0.5rem 0; min-width: 50px; resize: none; max-height: 120px; line-height: 1.4; overflow-y: auto; }
     .send-text-btn { height: 36px; width: 36px; border-radius: 50%; background: var(--navy); color: #fff; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; flex-shrink: 0; opacity: 1; transition: opacity 0.15s; }
     .send-text-btn:disabled { opacity: 0.5; cursor: not-allowed; }
     .send-btn { flex: 1; height: 44px; padding: 0 1rem; background: var(--navy); color: #fff; font-weight: 800; font-size: 14px; border-radius: 9999px; display: flex; align-items: center; justify-content: center; gap: 0.375rem; cursor: pointer; border: none; white-space: nowrap; }
@@ -393,7 +393,7 @@ export default function Room() {
                             <span style={{color: 'var(--muted)', fontSize: '12px'}}>•</span>
                             <span style={{color: 'var(--muted)', fontSize: '12px'}}>{formatTime(item.createdAt)}</span>
                           </div>
-                          <div className="file-name" style={{whiteSpace: 'pre-wrap', maxHeight: 'none', lineHeight: '1.4', marginTop: '4px', maxWidth: 'none', wordBreak: 'break-word'}}>{item.content}</div>
+                          <div className="file-name" style={{whiteSpace: 'pre-wrap', maxHeight: 'none', lineHeight: '1.5', marginTop: '6px', maxWidth: 'none', wordBreak: 'break-word', fontFamily: 'monospace', fontSize: '13px', background: '#F8FAFC', padding: '0.75rem', borderRadius: '12px', border: '1px solid #E2E8F0', overflowX: 'auto'}}>{item.content}</div>
                         </div>
                         <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0}}>
                           <button className="view-btn" onClick={() => navigator.clipboard.writeText(item.content).then(() => showToast('Copied!'))} type="button" style={{padding: '0 0.75rem'}} title="Copy text">
@@ -464,7 +464,20 @@ export default function Room() {
         <aside className="dock-wrap">
           <div className="dock">
             <form className="text-input-form" onSubmit={handleSendText}>
-              <input type="text" className="text-input" placeholder="Type a message..." value={textInput} onChange={e => setTextInput(e.target.value)} maxLength={5000} />
+              <textarea
+                className="text-input"
+                placeholder="Paste code or text..."
+                value={textInput}
+                onChange={e => setTextInput(e.target.value)}
+                maxLength={5000}
+                rows={1}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSendText(e);
+                  }
+                }}
+              />
               <button type="submit" className="send-text-btn" disabled={!textInput.trim()}>
                 <span className="material-symbols-outlined" style={{fontSize: '18px', marginLeft: '2px'}}>send</span>
               </button>

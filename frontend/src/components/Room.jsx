@@ -418,15 +418,15 @@ export default function Room() {
         </main>
 
         <aside className="fixed bottom-6 w-full z-30 px-4">
-          <div className="max-w-3xl mx-auto bg-white border-2 border-brand-dark rounded-full p-2 pl-4 sm:pl-5 shadow-brutal flex items-center justify-between gap-3 backdrop-blur-md">
-            <form onSubmit={handleSendText} className="flex-1 flex items-center space-x-2">
+          <div className="max-w-3xl mx-auto bg-white border-2 border-brand-dark rounded-3xl p-3 shadow-brutal flex flex-col gap-3">
+            <form id="send-text-form" onSubmit={handleSendText}>
               <textarea
-                className="w-full bg-transparent border-0 focus:ring-0 text-brand-dark placeholder-brand-muted text-sm sm:text-base font-mono outline-none py-1.5 px-0 resize-none"
+                className="block w-full bg-brand-gray border-2 border-brand-dark rounded-2xl focus:bg-white focus:shadow-brutal-sm text-brand-dark placeholder-brand-dark/60 text-sm sm:text-base font-mono outline-none py-3 px-4 resize-none transition-all"
                 placeholder="Paste code or text..."
                 value={textInput}
                 onChange={e => setTextInput(e.target.value)}
                 maxLength={5000}
-                rows={1}
+                rows={2}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -434,28 +434,30 @@ export default function Room() {
                   }
                 }}
               />
-              <button type="submit" disabled={!textInput.trim()} className="w-10 h-10 rounded-full bg-brand-gray border-2 border-brand-dark flex items-center justify-center text-brand-dark hover:bg-brand-lime transition-colors shrink-0 shadow-[0px_2px_0px_0px_#191A23] active:translate-y-0.5 disabled:opacity-50">
-                <svg className="w-4 h-4 -rotate-45 ml-0.5" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" viewBox="0 0 24 24">
-                  <line x1="22" x2="11" y1="2" y2="13"></line>
-                  <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                </svg>
-              </button>
             </form>
-            <div className="h-8 w-[2px] bg-brand-dark/15 hidden sm:block"></div>
+            <div className="flex gap-3">
             <input type="file" ref={fileInputRef} onChange={(e) => { if(e.target.files) handleFiles(e.target.files); e.target.value = ''; }} accept=".pdf,.jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp,application/pdf" style={{display:'none'}} multiple />
-            <button onClick={() => fileInputRef.current?.click()} className="bg-brand-dark hover:bg-black text-white rounded-full px-6 py-2.5 flex items-center space-x-2 font-display font-bold text-sm tracking-wide border-2 border-brand-dark shadow-brutal-sm active:translate-y-0.5 transition-all shrink-0 group">
-              <svg className="w-4 h-4 text-brand-lime group-hover:scale-110 transition-transform stroke-[2.2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button type="button" onClick={() => fileInputRef.current?.click()} aria-label="Upload file" className="bg-white hover:bg-brand-gray text-brand-dark rounded-full h-14 px-5 flex items-center justify-center gap-2 font-display font-bold text-sm border-2 border-brand-dark active:translate-y-0.5 transition-all group shrink-0">
+              <svg className="w-5 h-5 text-brand-lime group-hover:scale-110 transition-transform stroke-[2.2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                 <polyline points="14 2 14 8 20 8"></polyline>
                 <line x1="12" x2="12" y1="18" y2="12"></line>
                 <line x1="9" x2="15" y1="15" y2="15"></line>
               </svg>
-              <span className="hidden sm:inline">File</span>
+              <span>Upload File</span>
             </button>
+            <button type="submit" form="send-text-form" aria-label="Send text" disabled={!textInput.trim()} className="flex-1 h-14 px-6 rounded-full bg-brand-lime border-2 border-brand-dark flex items-center justify-center gap-2 text-brand-dark font-display font-extrabold text-base tracking-wide hover:brightness-95 transition-all shadow-brutal active:translate-y-0.5 active:shadow-none disabled:opacity-70 disabled:shadow-none disabled:cursor-not-allowed">
+              <svg className="w-5 h-5 stroke-[2.5]" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                <line x1="22" x2="11" y1="2" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+              </svg>
+              <span>Send</span>
+            </button>
+            </div>
           </div>
         </aside>
 
-        <footer className="w-full border-t border-brand-dark/10 py-5 bg-white text-xs text-brand-muted mt-auto mb-[72px]">
+        <footer className="w-full border-t border-brand-dark/10 py-5 bg-white text-xs text-brand-muted mt-auto mb-[170px]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
             <div className="flex items-center space-x-2 font-medium">
               <svg className="w-3.5 h-3.5 text-brand-dark stroke-[2.2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">

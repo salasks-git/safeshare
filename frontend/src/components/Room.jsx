@@ -435,9 +435,9 @@ export default function Room() {
                 }}
               />
             </form>
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
             <input type="file" ref={fileInputRef} onChange={(e) => { if(e.target.files) handleFiles(e.target.files); e.target.value = ''; }} accept=".pdf,.jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp,application/pdf" style={{display:'none'}} multiple />
-            <button type="button" onClick={() => fileInputRef.current?.click()} aria-label="Upload file" className="bg-white hover:bg-brand-gray text-brand-dark rounded-full h-14 px-5 flex items-center justify-center gap-2 font-display font-bold text-sm border-2 border-brand-dark active:translate-y-0.5 transition-all group shrink-0">
+            <button type="button" onClick={() => fileInputRef.current?.click()} aria-label="Upload file" className="order-2 sm:order-1 w-full sm:w-auto bg-white hover:bg-brand-gray text-brand-dark rounded-full h-12 sm:h-14 px-5 flex items-center justify-center gap-2 font-display font-bold text-sm border-2 border-brand-dark active:translate-y-0.5 transition-all group shrink-0">
               <svg className="w-5 h-5 text-brand-lime group-hover:scale-110 transition-transform stroke-[2.2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                 <polyline points="14 2 14 8 20 8"></polyline>
@@ -446,7 +446,7 @@ export default function Room() {
               </svg>
               <span>Upload File</span>
             </button>
-            <button type="submit" form="send-text-form" aria-label="Send text" disabled={!textInput.trim()} className="flex-1 h-14 px-6 rounded-full bg-brand-lime border-2 border-brand-dark flex items-center justify-center gap-2 text-brand-dark font-display font-extrabold text-base tracking-wide hover:brightness-95 transition-all shadow-brutal active:translate-y-0.5 active:shadow-none disabled:opacity-70 disabled:shadow-none disabled:cursor-not-allowed">
+            <button type="submit" form="send-text-form" aria-label="Send text" disabled={!textInput.trim()} className="order-1 sm:order-2 w-full sm:w-auto sm:flex-1 h-14 px-6 rounded-full bg-brand-lime border-2 border-brand-dark flex items-center justify-center gap-2 text-brand-dark font-display font-extrabold text-base tracking-wide hover:brightness-95 transition-all shadow-brutal active:translate-y-0.5 active:shadow-none disabled:opacity-70 disabled:shadow-none disabled:cursor-not-allowed">
               <svg className="w-5 h-5 stroke-[2.5]" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
                 <line x1="22" x2="11" y1="2" y2="13"></line>
                 <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
@@ -457,7 +457,7 @@ export default function Room() {
           </div>
         </aside>
 
-        <footer className="w-full border-t border-brand-dark/10 py-5 bg-white text-xs text-brand-muted mt-auto mb-[170px]">
+        <footer className="w-full border-t border-brand-dark/10 py-5 bg-white text-xs text-brand-muted mt-auto mb-[290px] sm:mb-[170px]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
             <div className="flex items-center space-x-2 font-medium">
               <svg className="w-3.5 h-3.5 text-brand-dark stroke-[2.2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">

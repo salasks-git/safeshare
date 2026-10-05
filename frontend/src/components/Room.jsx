@@ -252,14 +252,7 @@ export default function Room() {
                 </svg>
               </div>
               <div>
-                <div className="flex items-center space-x-2">
-                  <h1 className="font-display font-bold text-xl tracking-tight leading-none text-brand-dark">Safe-Drop</h1>
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#E9FFCC] text-brand-dark border border-brand-dark/30">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 mr-1.5 status-pulse"></span>
-                    Connected
-                  </span>
-                </div>
-                <p className="text-xs font-medium text-brand-muted mt-0.5">Ephemeral Transfer Room</p>
+                <h1 className="font-display font-bold text-xl tracking-tight leading-none text-brand-dark">Safe-Drop</h1>
               </div>
               <div className="hidden md:flex items-center bg-brand-gray border border-brand-dark/20 rounded-full px-3.5 py-1 text-xs font-semibold text-brand-dark space-x-1.5 ml-2">
                 <span className="text-brand-muted font-normal">Room</span>

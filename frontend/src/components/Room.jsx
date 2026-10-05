@@ -25,6 +25,15 @@ export default function Room() {
   const [uploadingFiles, setUploadingFiles] = useState([]);
 
   const fileInputRef = useRef(null);
+  const textareaRef = useRef(null);
+
+  // Auto-grow the text box so typed/pasted text stays visible (capped, then scrolls)
+  useEffect(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, window.innerHeight * 0.4) + 'px';
+  }, [textInput]);
   const wsRef = useRef(null);
 
   const showToast = (msg) => {
@@ -416,6 +425,7 @@ export default function Room() {
               <textarea
                 className="block w-full bg-brand-gray border-2 border-brand-dark rounded-2xl focus:bg-white focus:shadow-brutal-sm text-brand-dark placeholder-brand-dark/60 text-sm sm:text-base font-mono outline-none py-3 px-4 resize-none transition-all"
                 placeholder="Paste code or text..."
+                ref={textareaRef}
                 value={textInput}
                 onChange={e => setTextInput(e.target.value)}
                 maxLength={5000}
